@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "133651623902",
+    "project_id": "call-app-392a0",
+    "storage_bucket": "call-app-392a0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:133651623902:android:e8e03f7417ebbe47d9774f",
+        "android_client_info": {
+          "package_name": "com.ahil_call_app.call_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "133651623902-pnv0e3sm7n5s8rmt5ljl8nfpgek57vpm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDLq83V7qhEUFEnOInFsJ2to5OGWDj7rKI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "133651623902-pnv0e3sm7n5s8rmt5ljl8nfpgek57vpm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
