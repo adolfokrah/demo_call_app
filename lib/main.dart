@@ -165,10 +165,16 @@ class _HomePage extends State<HomePage> {
     });
   }
 
-  initializecallkeep(){
+  initializecallkeep()async{
     _callKeep.setup(null, callSetup);
     _callKeep.on(CallKeepPerformAnswerCallAction(), answerAction);
     _callKeep.on(CallKeepPerformEndCallAction(), endAction);
+
+    bool hasPhoneAccount = await _callKeep.hasPhoneAccount();
+    if (!hasPhoneAccount) {
+      hasPhoneAccount = await _callKeep.hasDefaultPhoneAccount(context, callSetup["android"]);
+      print(hasPhoneAccount);
+    }
   }
 
   Future<void> answerAction(CallKeepPerformAnswerCallAction event) async {
