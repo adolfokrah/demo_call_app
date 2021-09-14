@@ -2,11 +2,15 @@ import 'dart:async';
 
 import 'package:callkeep/callkeep.dart';
 import 'package:eraser/eraser.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 // Import the firebase_core plugin
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:uuid/uuid.dart';
+
+
 final FlutterCallkeep _callKeep = FlutterCallkeep();
 bool _callKeepInited = false;
 
@@ -15,7 +19,9 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // make sure you call `initializeApp` before using other Firebase services.
   await Firebase.initializeApp();
 
+
   var payload = message.data;
+  print(payload);
   var callerId = payload['caller_id'] ;
   var callerName = payload['caller_name'] ;
   var uuid =payload['uuid'] ;
@@ -60,7 +66,7 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   _callKeep.displayIncomingCall(
       "023423352342342342343234", "0245301631",
       handleType: "number", hasVideo: false);
-  Eraser.clearAllAppNotifications();
+  // Eraser.clearAllAppNotifications();
   Timer(const Duration(seconds: 30), () {
     _callKeep.endAllCalls();
   });
@@ -98,11 +104,12 @@ class HomePage extends StatefulWidget {
 class _HomePage extends State<HomePage> {
   late FirebaseMessaging messaging;
   final FlutterCallkeep _callKeep = FlutterCallkeep();
-  bool _callKeepStarted = false;
+  var uuid = Uuid();
+
 
   final callSetup = <String, dynamic>{
     'ios': {
-      'appName': 'CallKeepDemo',
+      'appName': 'call_app',
     },
     'android': {
       'alertTitle': 'Permissions required',
@@ -125,9 +132,42 @@ class _HomePage extends State<HomePage> {
   void initState(){
    initialiseFireBase();
    initializecallkeep();
+  // configure();
     // TODO: implement initState
     super.initState();
   }
+
+
+  Future onDidReceiveLocalNotification(
+      int? id, String? title, String? body, String? payload) async {
+    // display a dialog with the notification details, tap ok to go to another page
+    showDialog(
+      context: context,
+      builder: (BuildContext context) => CupertinoAlertDialog(
+        title: Text(title!),
+        content: Text(body!),
+        actions: [
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            child: Text('Ok'),
+            onPressed: () async {
+              Navigator.of(context, rootNavigator: true).pop();
+
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future selectNotification(String? payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: $payload');
+    }
+    print('hel');
+  }
+
+
 
   initialiseFireBase()async{
     await Firebase.initializeApp();
@@ -182,7 +222,6 @@ class _HomePage extends State<HomePage> {
     final String number = "0245301631";
     print('[answerCall] $callUUID, number: $number');
     endCall();
-
   }
 
   Future<void> endAction(CallKeepPerformEndCallAction event) async {
@@ -191,17 +230,20 @@ class _HomePage extends State<HomePage> {
 
 
   Future<void>showIncomingCallScreen()async{
-    bool hasPhoneAccount = await _callKeep.hasPhoneAccount();
-    if (!hasPhoneAccount) {
-      hasPhoneAccount = await _callKeep.hasDefaultPhoneAccount(context, callSetup["android"]);
-      print(hasPhoneAccount);
-    }else {
-      _callKeep.displayIncomingCall(
-          "023423352342342342343234", "0245301631",
-          handleType: "number", hasVideo: false);
-      Timer(const Duration(seconds: 30), () {
-       endCall();
-      });
+    try{
+      bool hasPhoneAccount = await _callKeep.hasPhoneAccount();
+      if (!hasPhoneAccount) {
+        hasPhoneAccount = await _callKeep.hasDefaultPhoneAccount(context, callSetup["android"]);
+      }else {
+        _callKeep.displayIncomingCall(
+            Uuid().v4(), "0245301631",
+            handleType: "number", hasVideo: false);
+        Timer(const Duration(seconds: 30), () {
+          endCall();
+        });
+      }
+    }catch(e){
+      print(e);
     }
   }
 
@@ -214,6 +256,27 @@ class _HomePage extends State<HomePage> {
     await _callKeep.endAllCalls();
   }
 
+
+  // displayNotification()async{
+  //   const AndroidNotificationDetails androidPlatformChannelSpecifics =
+  //   AndroidNotificationDetails(
+  //       'your channel id', 'your channel name', 'your channel description',
+  //       importance: Importance.max,
+  //       priority: Priority.high,
+  //       showWhen: false);
+  //   const IOSNotificationDetails iosNotificationDetails = IOSNotificationDetails();
+  //   const NotificationDetails platformChannelSpecifics =
+  //   NotificationDetails(android: androidPlatformChannelSpecifics,iOS:iosNotificationDetails );
+  //   await flutterLocalNotificationsPlugin.show(
+  //       0, 'plain title', 'plain body',
+  //       platformChannelSpecifics,
+  //       payload: 'item x');
+  // }
+
+
+
+
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -224,7 +287,7 @@ class _HomePage extends State<HomePage> {
         alignment: Alignment.center,
         child: MaterialButton(
           onPressed: (){
-              //showIncomingCallScreen();
+            showIncomingCallScreen();
           },
           child: Text("Home Screen"),
         ),
