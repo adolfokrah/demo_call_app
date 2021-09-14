@@ -221,7 +221,7 @@ class _HomePage extends State<HomePage> {
     final String? callUUID = event.callUUID;
     final String number = "0245301631";
     print('[answerCall] $callUUID, number: $number');
-    endCall();
+    // endCall();
   }
 
   Future<void> endAction(CallKeepPerformEndCallAction event) async {
